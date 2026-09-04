@@ -41,6 +41,8 @@ public class PedidoDetalle implements Serializable {
     private BigDecimal precioUnitario;
     @Column(name = "SUBTOTAL")
     private BigDecimal subtotal;
+    @Column(name = "ESTADO")
+    private Boolean estado;
     @JoinColumn(name = "ID_PEDIDO", referencedColumnName = "ID_PEDIDO")
     @ManyToOne
     private Pedido idPedido;
@@ -85,6 +87,14 @@ public class PedidoDetalle implements Serializable {
 
     public void setSubtotal(BigDecimal subtotal) {
         this.subtotal = subtotal;
+    }
+
+    public Boolean getEstado() {
+        return estado;
+    }
+
+    public void setEstado(Boolean estado) {
+        this.estado = estado;
     }
 
     public Pedido getIdPedido() {

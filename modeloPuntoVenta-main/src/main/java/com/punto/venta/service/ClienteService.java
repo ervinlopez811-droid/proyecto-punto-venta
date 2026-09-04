@@ -29,6 +29,20 @@ public class ClienteService {
                 .collect(Collectors.toList());
     }
 
+    public List<ClienteDTO> mostrarActivos() {
+        return clienteRepository.findByEstadoTrue()
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<ClienteDTO> filtroNombre(String nombre) {
+        return clienteRepository.findByNombreContainingIgnoreCaseAndEstadoTrue(nombre)
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
     public ClienteDTO crear(ClienteDTO dto) {
         boolean duplicado = clienteRepository
                 .existsByNombreIgnoreCaseAndApellidoIgnoreCase(dto.getNombre(),
@@ -37,6 +51,41 @@ public class ClienteService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "El cliente ya existe");
         }
         return convertToDTO(clienteRepository.save(convertToEntity(dto)));
+    }
+
+    public ClienteDTO actualizar(Integer idCliente, ClienteDTO dto) {
+        Cliente clienteExistente = clienteRepository.findById(idCliente)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente no encontrado"));
+        if (dto.getNombre() != null) {
+            clienteExistente.setNombre(dto.getNombre());
+        }
+        if (dto.getEstado() != null) {
+            clienteExistente.setEstado(dto.getEstado());
+        }
+        if (dto.getEmail() != null) {
+            clienteExistente.setEmail(dto.getEmail());
+        }
+        if (dto.getTelefono() != null) {
+            clienteExistente.setTelefono(dto.getTelefono());
+        }
+        if (dto.getFechaRegistro() != null) {
+            clienteExistente.setFechaRegistro(dto.getFechaRegistro());
+        }
+        return convertToDTO(clienteRepository.save(clienteExistente));
+    }
+
+    public ClienteDTO anular(Integer idCliente, ClienteDTO dto) {
+        Cliente clienteExistente = clienteRepository.findById(idCliente)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente no encontrado"));
+        clienteExistente.setEstado(false);
+        return convertToDTO(clienteRepository.save(clienteExistente));
+    }
+
+    public void eliminar(Integer idCliente) {
+        if (!clienteRepository.existsById(idCliente)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente no encontrado");
+        }
+        clienteRepository.deleteById(idCliente);
     }
 
     private ClienteDTO convertToDTO(Cliente c) {

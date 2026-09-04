@@ -1,24 +1,59 @@
 package com.punto.venta.controller;
 
-import com.punto.venta.entity.PedidoDetalle;
-import com.punto.venta.service.PedidoDetalleService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.punto.venta.dto.MessageResponse;
+import com.punto.venta.dto.PedidoDetalleDTO;
+import com.punto.venta.service.PedidoDetalleService;
+
 @RestController
-@RequestMapping("/api/pedido-detalles")
+@RequestMapping("/pedido-detalles")
+@CrossOrigin(origins = "*")
 public class PedidoDetalleController {
-    @Autowired
-    private PedidoDetalleService pedidoDetalleService;
+    private final PedidoDetalleService pedidoDetalleService;
+
+    public PedidoDetalleController(PedidoDetalleService pedidoDetalleService) {
+        this.pedidoDetalleService = pedidoDetalleService;
+    }
 
     @GetMapping
-    public List<PedidoDetalle> listar() {
-        return pedidoDetalleService.findAll();
+    public List<PedidoDetalleDTO> listarTodos() {
+        return pedidoDetalleService.listarTodos();
+    }
+
+    @GetMapping("/activos")
+    public List<PedidoDetalleDTO> mostrarActivos() {
+        return pedidoDetalleService.mostrarActivos();
+    }
+
+    @GetMapping("/activosOrdenTop5")
+    public List<PedidoDetalleDTO> mostrarActivosOrdenTop5() {
+        return pedidoDetalleService.mostrarActivosOrdenTop5();
+    }
+
+    @GetMapping("/filtro/pedido/{idPedido}")
+    public List<PedidoDetalleDTO> filtroPedido(@PathVariable Integer idPedido) {
+        return pedidoDetalleService.filtroPedido(idPedido);
     }
 
     @PostMapping
-    public PedidoDetalle guardar(@RequestBody PedidoDetalle pedidoDetalle) {
-        return pedidoDetalleService.save(pedidoDetalle);
+    public ResponseEntity<MessageResponse> crearDetalle(@RequestBody PedidoDetalleDTO pedidoDetalleDTO) {
+        try {
+            pedidoDetalleService.crear(pedidoDetalleDTO);
+            return ResponseEntity.ok(new MessageResponse("Detalle de pedido creado con éxito"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new MessageResponse("Error al crear el detalle de pedido " + e.getMessage()));
+        }
     }
 }

@@ -8,4 +8,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CategoriaRepository extends JpaRepository<Categoria, Integer> {
     List<Categoria> findByEstadoTrueOrderByIdCategoriaDesc();
+
+    List<Categoria> findByEstadoTrue();
+
+    List<Categoria> findByEstadoTrueAndNombreContainingIgnoreCase(String nombre);
+
+    List<Categoria> findTop2ByEstadoTrueAndNombreContainingIgnoreCase(String nombre);
 }
